@@ -1,0 +1,41 @@
+#cross-compile for windows 32/64 bit platforms
+#on ubuntu, the packages needed are mingw32, g++-mingw-w64-i686
+#invoke with make -f Makefile.win
+#for a clean build, always make clean before using other targets
+
+CC = i686-w64-mingw32-gcc
+BUILD = build
+ARCHIVE = archive
+
+OPTS= $ -I $(BUILD)/zlib-1.2.5 $(BUILD)/zlib-1.2.5/zlib_.a
+
+SRC = src
+BUILD = build
+PREFIX = /usr/local
+INSTALLDIR = $(PREFIX)/bin
+
+$(shell mkdir -p $(BUILD))
+
+default: osmconvert.exe
+
+zlib.a: 
+	mkdir -p $(BUILD) \
+	&& cp $(ARCHIVE)/zlib-1.2.5.tar.gz $(BUILD) \
+	&& cd $(BUILD) \
+	&& tar xf zlib-1.2.5.tar.gz \
+	&& cd zlib-1.2.5 \
+	&& export CC=/usr/bin/i686-w64-mingw32-gcc \
+	&& ./configure --static \
+	&& cat Makefile | sed 's/all: static all64/all: static/g' > Makefile_ \
+	&& mv Makefile_ Makefile \
+	&& make \
+	&& ar rcs zlib_.a *.o
+
+	@echo "successfully built zlib_.a"
+
+osmconvert.exe: $(SRC)/osmconvert.c zlib.a
+	$(CC) $(SRC)/osmconvert.c -o $(BUILD)/osmconvert.exe $(OPTS)
+	@echo "successfully built osmconvert.exe"
+
+clean:
+	-rm -rf $(BUILD)
