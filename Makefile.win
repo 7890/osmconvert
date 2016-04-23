@@ -7,7 +7,7 @@ CC = i686-w64-mingw32-gcc
 BUILD = build
 ARCHIVE = archive
 
-OPTS= $ -I $(BUILD)/zlib-1.2.5 $(BUILD)/zlib-1.2.5/zlib_.a
+OPTS= $ -I $(BUILD)/zlib-1.2.5 $(BUILD)/zlib-1.2.5/zlib_.a -O3
 
 SRC = src
 BUILD = build
@@ -16,7 +16,9 @@ INSTALLDIR = $(PREFIX)/bin
 
 $(shell mkdir -p $(BUILD))
 
-default: osmconvert.exe
+default: all
+
+all: osmconvert.exe osmfilter.exe
 
 zlib.a: 
 	mkdir -p $(BUILD) \
@@ -36,6 +38,10 @@ zlib.a:
 osmconvert.exe: $(SRC)/osmconvert.c zlib.a
 	$(CC) $(SRC)/osmconvert.c -o $(BUILD)/osmconvert.exe $(OPTS)
 	@echo "successfully built osmconvert.exe"
+
+osmfilter.exe: $(SRC)/osmfilter.c
+	$(CC) $(SRC)/osmfilter.c -o $(BUILD)/osmfilter.exe -O3
+	@echo "successfully built osmfilter.exe"
 
 clean:
 	-rm -rf $(BUILD)
